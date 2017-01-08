@@ -1,6 +1,7 @@
 {
   "name": "angular-media-timeline",
   "authors": [
+    "Stefan Tannhäuser"
     "Nicolas Bello Camilletti",
     "Pablo Biasotti"
   ],
@@ -28,7 +29,7 @@
     "angular": "~1.2.0"
   },
   "devDependencies": {},
-  "homepage": "https://github.com/nbellocam/angular-media-timeline",
+  "homepage": "https://github.com/stannhaeuser/angular-media-timeline.git",
   "main": [
     "dist/js/timeline.js",
     "dist/styles/timeline.css"

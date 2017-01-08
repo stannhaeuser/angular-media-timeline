@@ -1,9 +1,9 @@
 {
-  "author": "Nicolas Bello Camilletti, Pablo Biasotti",
-  "name": "angular-timeline-demo",
-  "version": "0.2.0",
+  "author": "Stefan Tannhäuser, Nicolas Bello Camilletti, Pablo Biasotti",
+  "name": "angular-media-timeline",
+  "version": "0.0.1",
   "description": "A simple media timeline angular directive",
-  "homepage": "http://nbellocam.github.io/angular-media-timeline",
+  "homepage": "https://github.com/stannhaeuser/angular-media-timeline.git",
   "dependencies": {},
   "devDependencies": {
     "express": "~3.4.4",
@@ -26,7 +26,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "Apache-2.0",
-  "repository": "nbellocam/angular-media-timeline",
+  "repository": "stannhaeuser/angular-media-timeline.git",
   "engines": {
     "node": "0.10.10"
   }
