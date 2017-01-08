@@ -1,7 +1,7 @@
 {
   "author": "Stefan Tannhäuser, Nicolas Bello Camilletti, Pablo Biasotti",
   "name": "angular-media-timeline",
-  "version": "0.0.1",
+  "version": "0.2.1",
   "description": "A simple media timeline angular directive",
   "homepage": "https://github.com/stannhaeuser/angular-media-timeline.git",
   "dependencies": {},
