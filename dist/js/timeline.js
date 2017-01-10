@@ -130,6 +130,11 @@ angular.module('mt.media-timeline', [])
 					rightElement = angular.element(element[0].querySelector('.right')),
 					border = 30;
 
+				var videoStart = 0, videoEnd = evt.start + evt.duration;
+				var clipStart = 0, clipDuration = evt.duration, clipEnd = evt.start + evt.duration;
+				var startDelta = 0;
+				var endDelta = 0;
+
 				element.css({
 					left: evt.start + 'px',
 					width: evt.duration + 'px'
@@ -159,6 +164,11 @@ angular.module('mt.media-timeline', [])
 						originalZIndex = element.css('z-index');
 						originalEndPosition = evt.start + evt.duration;
 
+						clipStart = evt.start;
+						clipDuration = evt.duration;
+						clipEnd = clipStart + clipDuration;
+						console.log("clipStart (left): " + clipStart);
+
 						element.css({
 							'z-index': 1000
 						});
@@ -172,9 +182,14 @@ angular.module('mt.media-timeline', [])
 					if (!$scope.isDisable) {
 						// Prevent default dragging of selected content
 						event.preventDefault();
-						x = event.pageX - evt.start;
+						x = event.pageX - evt.start - evt.duration;
 						originalDuration = evt.duration;
 						originalZIndex = element.css('z-index');
+
+						clipStart = evt.start;
+						clipDuration = evt.duration;
+						clipEnd = clipStart + clipDuration;
+						console.log("clipEnd (right): " + clipEnd);
 
 						element.css({
 							'z-index': 1000
@@ -194,6 +209,11 @@ angular.module('mt.media-timeline', [])
 						originalStart = evt.start;
 						originalZIndex = element.css('z-index');
 
+						clipStart = evt.start;
+						clipDuration = evt.duration;
+						clipEnd = clipStart + clipDuration;
+						console.log("clipEnd (center): " + clipEnd);
+
 						element.css({
 							'z-index': 1000
 						});
@@ -204,13 +224,21 @@ angular.module('mt.media-timeline', [])
 				});
 
 				function elementMove(event) {
-					var newStart = event.pageX - x;
-					if (newStart > 0) {
-						evt.start = newStart;
+					clipStart = event.pageX - x;
+					clipEnd = clipStart + clipDuration;
+					videoStart = clipStart - startDelta;
+					videoEnd = clipEnd - endDelta;
+					if (clipStart > 0) {
+						evt.start = clipStart;
 						element.css({
-							left: newStart + 'px'
+							left: clipStart + 'px'
 						});
 					}
+					console.log("-------------------------------------------------------------------------------------");
+					console.log("clipStart: " + clipStart + ", clipEnd: " + clipEnd + ", clipDuration: " + clipDuration);
+					console.log("startDelta: " + startDelta + ", endDelta: " + endDelta);
+					console.log("videoStart: " + videoStart + ", videoEnd: " + videoEnd);
+					console.log("-------------------------------------------------------------------------------------");
 					$scope.$apply();
 				}
 
@@ -231,23 +259,38 @@ angular.module('mt.media-timeline', [])
 				}
 
 				function elementExpandFront(event) {
-					var newStart = event.pageX - x,
-							newDuration = originalEndPosition - newStart;
+					  if (calculateStartDelta(startDelta, clipStart, x, event) <= 0) {
+							var clipOldStart = clipStart;
+							clipStart = event.pageX - x;
+							clipDuration = clipEnd - clipStart;
+							startDelta = startDelta + clipOldStart - clipStart;
+							console.log("-------------------------------------------------------------------------------------");
+							console.log("clipStart: " + clipStart + ", clipEnd: " + clipEnd + ", clipDuration: " + clipDuration);
+							console.log("startDelta: " + startDelta + ", endDelta: " + endDelta);
+							console.log("videoStart: " + videoStart + ", videoEnd: " + videoEnd);
+							console.log("-------------------------------------------------------------------------------------");
+							if (clipStart > 0 && clipDuration > 0) {
+								evt.duration = clipDuration;
+								evt.start = clipStart;
+								element.css({
+									left: clipStart + 'px',
+									width: clipDuration + 'px'
+								});
 
-					if (newStart > 0 && newDuration > 0) {
-						evt.duration = newDuration;
-						evt.start = newStart;
-						element.css({
-							left: newStart + 'px',
-							width: newDuration + 'px'
-						});
-
-						centerElement.css({
-							width: (newDuration - border) + 'px'
-						});
-					}
-					$scope.$apply();
+								centerElement.css({
+									width: (clipDuration - border) + 'px'
+								});
+							}
+							$scope.$apply();
+						}
 				}
+
+				function calculateStartDelta (sd, cs, x, event) {
+					var cos = cs
+					var cs = event.pageX - x;
+					sd = sd + cos - cs;
+					return sd
+				};
 
 				function elementExpandFrontEnd() {
 					$document.unbind('mousemove', elementExpandFront);
@@ -273,21 +316,37 @@ angular.module('mt.media-timeline', [])
 				}
 
 				function elementExpandBack(event) {
-					var newStart = event.pageX - x,
-						newDuration = (newStart - evt.start) + originalDuration;
+					if (calculateEndDelta(endDelta, clipEnd, x, event) >= 0) {
+						var clipEndOld = clipEnd;
+						var clipDurationOld = clipDuration;
+						clipEnd = (event.pageX - x);
+						clipDuration = (clipEnd - clipEndOld) + clipDurationOld;
+						endDelta = endDelta + clipEndOld - clipEnd;
+						console.log("-------------------------------------------------------------------------------------");
+						console.log("clipStart: " + clipStart + ", clipEnd: " + clipEnd + ", clipDuration: " + clipDuration);
+						console.log("startDelta: " + startDelta + ", endDelta: " + endDelta);
+						console.log("videoStart: " + videoStart + ", videoEnd: " + videoEnd);
+						console.log("-------------------------------------------------------------------------------------");
+						if (clipDuration > 0) {
+							evt.duration = clipDuration;
+							element.css({
+								width: clipDuration + 'px'
+							});
 
-					if (newDuration > 0) {
-						evt.duration = newDuration;
-						element.css({
-							width: newDuration + 'px'
-						});
-
-						centerElement.css({
-							width: (newDuration - border) + 'px'
-						});
+							centerElement.css({
+								width: (clipDuration - border) + 'px'
+							});
+						}
+						$scope.$apply();
 					}
-					$scope.$apply();
 				}
+
+				function calculateEndDelta (ed, ce, x, event) {
+					var coe = ce
+					var ce = event.pageX - x;
+					ed = ed + coe - ce;
+					return ed
+				};
 
 				function elementExpandBackEnd() {
 					$document.unbind('mousemove', elementExpandBack);
